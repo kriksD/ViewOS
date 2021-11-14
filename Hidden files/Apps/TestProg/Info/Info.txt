@@ -1,0 +1,5 @@
+name:TestProg
+description:Prog for test
+developer:View Group
+versions:1.0:5|1.1:15|1.2:20|1.2.1:22|1.2.2:23
+price:0

@@ -1,0 +1,25 @@
+<vgml1>
+
+View:
+	background=rgb(45,87,0)|
+	width=max|
+	height=30;
+	
+EndRow;
+	
+Text:
+	text=Text for test2|
+	background=rgb(45,87,0)|
+	color=rgb(230,230,230)|
+	width=max|
+	height=30;
+	
+EndRow;
+
+Button:
+	text=Text for test3|
+	background=rgb(45,87,0)|
+	color=rgb(230,230,230)|
+	width=max|
+	height=30|
+	url=vgs-test3;

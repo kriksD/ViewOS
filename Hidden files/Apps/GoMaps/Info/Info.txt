@@ -1,0 +1,5 @@
+name:GoMaps
+description:Interactive maps of Aglela
+developer:Google
+versions:1.0:350
+price:0

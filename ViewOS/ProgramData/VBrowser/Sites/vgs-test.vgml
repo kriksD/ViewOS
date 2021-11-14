@@ -1,0 +1,46 @@
+<vgml1>
+
+View:
+	background=rgb(100,0,0)|
+	width=150|
+	height=40;
+	
+Text:
+	text=Text for test|
+	fontSize=18|
+	background=rgb(0,100,0)|
+	color=rgb(230,230,230)|
+	width=150|
+	height=30;
+	
+EndRow;
+
+UrlText:
+	text=Text for test3|
+	background=rgb(0,0,100)|
+	color=rgb(230,230,230)|
+	width=150|
+	height=40|
+	url=vgs-test3;
+
+Button:
+	text=Text for test2|
+	background=rgb(100,0,100)|
+	color=rgb(230,230,230)|
+	width=150|
+	height=40|
+	url=vgs-test2;
+	
+Image:
+	width=150|
+	height=150|
+	background=rgb(200,200,200)|
+	src=ViewOS/User/osIcon.png;
+	
+EndRow;
+
+Text:
+	text=text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text|
+	width=max|
+	background=rgb(0,0,0)|
+	height=100;

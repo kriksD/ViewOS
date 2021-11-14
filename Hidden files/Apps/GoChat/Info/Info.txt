@@ -1,0 +1,5 @@
+name:GoChat
+description:Chat for talking with other peaple. You can talk everywhere that have internet!
+developer:Google
+versions:1.0:350
+price:0

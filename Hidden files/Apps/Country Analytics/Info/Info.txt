@@ -1,0 +1,5 @@
+name:Country Analytics
+description:App for checking countries data. Meanwhile exist only population data, but in future to be more!
+developer:Analytics Center
+versions:1.0:418
+price:0

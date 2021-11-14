@@ -1,0 +1,24 @@
+<vgml1>
+
+View:
+	width=150|
+	height=40;
+	
+Text:
+	text=Text for test|
+	width=150|
+	height=30;
+	
+EndRow;
+
+UrlText:
+	text=Text for test3|
+	width=150|
+	height=40|
+	url=vgs-test3;
+
+Button:
+	text=Text for test2|
+	width=150|
+	height=40|
+	url=vgs-test2;

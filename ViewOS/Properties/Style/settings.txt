@@ -1,0 +1,3 @@
+backgroundPath:"ViewOS/Properties/Style/fon.png"
+bottomBarTransparency:0.5
+bottomBarColor:0.000,0.000,0.000

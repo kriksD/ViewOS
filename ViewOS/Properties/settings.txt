@@ -1,0 +1,2 @@
+iconsInCenter:false
+bottomBarPosition:bottom

@@ -1,0 +1,5 @@
+name:TestProg2
+description:Prog for test2
+developer:View Group
+versions:1.0:5|1.1:34
+price:10

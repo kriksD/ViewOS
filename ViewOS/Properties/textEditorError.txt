@@ -1,0 +1,1 @@
+It`s file textEditorError.txt. It will opened in text editor when path not correct.

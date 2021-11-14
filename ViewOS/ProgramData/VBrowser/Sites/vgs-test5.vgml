@@ -1,0 +1,20 @@
+<vgml1>
+
+View:
+	background=rgb(10,10,10);
+	
+Text:
+	text=text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text|
+	background=rgb(30,30,30);
+	
+EndRow;
+
+UrlText:
+	text=url text|
+	url=vgs-test|
+	background=rgb(50,50,50);
+
+Button:
+	text=button|
+	url=vgs-test|
+	background=rgb(70,70,70);
