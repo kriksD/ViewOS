@@ -64,7 +64,6 @@ private enum class ScreenType {
 
 @Composable
 fun AppMarket(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
     CircularProgressIndicator()

@@ -45,7 +45,6 @@ data class SapperField(val notBomb: Boolean, var clicked: Boolean) {
 
 @Composable
 fun Sapper(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
     val random = MyRandom(Calendar.getInstance().timeInMillis)

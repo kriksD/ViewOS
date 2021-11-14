@@ -29,83 +29,83 @@ object ProgramsCreator {
             height = SubWindow.minimumHeight,
             x = 800F,
             y = 400F,
-            content = { data, pto, reload -> WelcomeProgram() },
+            content = { data -> WelcomeProgram() },
             icon = "osIcon.png"
         ),
         SubWindowData(
             title = "TestProg",
-            content = { data, pto, reload -> TestProg() },
+            content = { data -> TestProg() },
             icon = "osIconSecond.png"
         ),
         SubWindowData(
             title = "TestProg2",
-            content = { data, pto, reload -> TestProg2() },
+            content = { data -> TestProg2() },
             icon = "osIconSecond.png"
         ),
         SubWindowData(
             title = "Explorer",
             width = 900.dp,
-            content = { data, pto, reload -> Explorer(pto, data, reload) },
+            content = { data -> Explorer(data) },
             icon = "explorerIcon.png"
         ),
         SubWindowData(
             title = "Text Editor",
             icon = "textEditorIcon.png",
-            content = { data, pto, reload -> TextEditor(pto, data) },
+            content = { data -> TextEditor(data) },
             args = mutableMapOf(Pair("path", "none"))
         ),
         SubWindowData(
             title = "Image Viewer",
             icon = "imageViewerIcon.png",
-            content = { data, pto, reload -> ImageViewer(pto, data) },
+            content = { data -> ImageViewer(data) },
             args = mutableMapOf(Pair("path", "none"))
         ),
         SubWindowData(
             title = "ABrowser",
-            content = { data, pto, reload -> ABrowser(pto, data) },
+            content = { data -> ABrowser(data) },
             icon = "osIconSecond.png"
         ),
         SubWindowData(
             title = "Sapper",
             height = 434.dp,
             width = 500.dp,
-            content = { data, pto, reload -> Sapper(pto, data) },
+            content = { data -> Sapper(data) },
             icon = "osIconSecond.png"
         ),
         SubWindowData(
             title = "VBrowser",
-            content = { data, pto, reload -> VBrowser(pto, data) },
+            content = { data -> VBrowser(data) },
             icon = "vBrowserIcon.png"
         ),
         SubWindowData(
             title = "AppMarket",
-            content = { data, pto, reload -> AppMarket(pto, data) },
+            content = { data -> AppMarket(data) },
             icon = "appMarketIcon.png"
         ),
         SubWindowData(
             title = "Calculator",
             height = 150.dp,
-            content = { data, pto, reload -> Calculator(pto, data) },
+            content = { data -> Calculator(data) },
             icon = "calculatorIcon.png"
         ),
         SubWindowData(
             title = "GoMaps",
-            content = { data, pto, reload -> GoMaps(pto, data) },
+            content = { data -> GoMaps(data) },
             icon = "mapsIcon.png"
         ),
         SubWindowData(
             title = "GoChat",
-            content = { data, pto, reload -> GoChat(pto, data) },
+            content = { data -> GoChat(data) },
             icon = "chatIcon.png"
         ),
         SubWindowData(
             title = "Settings",
-            content = { data, pto, reload -> Settings(pto, data) },
+            content = { data -> Settings(data) },
             icon = "settingsIcon.png"
         ),
         SubWindowData(
             title = "Country Analytics",
-            content = { data, pto, reload -> CountryAnalytics(pto, data) },
+            content = { data -> CountryAnalytics(data) },
             icon = "acIcon.png"
         ),
     )

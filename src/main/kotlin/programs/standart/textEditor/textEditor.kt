@@ -18,7 +18,6 @@ import java.io.File
 
 @Composable
 fun TextEditor(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
     var textFromFile = ""

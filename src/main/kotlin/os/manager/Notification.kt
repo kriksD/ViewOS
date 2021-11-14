@@ -16,8 +16,6 @@ data class Notification(
         }
     }
 
-    var isShow = false
-
     override fun toString(): String {
         return "$time $date | $message"
     }

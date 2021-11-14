@@ -49,7 +49,6 @@ private data class CountryData(
 
 @Composable
 fun CountryAnalytics(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
     val countryOpened = remember {

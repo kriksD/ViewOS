@@ -17,15 +17,14 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import os.desktop.SubWindowData
 import os.manager.ProgramsCreator
+import os.manager.ProgramsManager
 import viewOsUis.Table
 import viewOsUis.TableType
 import java.io.File
 
 @Composable
 fun Explorer(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
-    programsReload: MutableState<Boolean>,
 ) {
     val path = remember { mutableStateOf(
         if (data.args["path"] != null) data.args["path"].toString() else "ViewOS/User"
@@ -61,14 +60,12 @@ fun Explorer(
                     if (checkForPng(text.value)) {
                         val imageViewer = ProgramsCreator.getInstance("Image Viewer")
                         imageViewer.args["path"] = text.value
-                        programsThatOpen.add(imageViewer)
-                        programsReload.value = false
+                        ProgramsManager.open(imageViewer)
 
                     } else if (checkForTxt(text.value)) {
                         val textEditor = ProgramsCreator.getInstance("Text Editor")
                         textEditor.args["path"] = text.value
-                        programsThatOpen.add(textEditor)
-                        programsReload.value = false
+                        ProgramsManager.open(textEditor)
 
                     } else if (checkForPath(text.value)) {
                         path.value = text.value

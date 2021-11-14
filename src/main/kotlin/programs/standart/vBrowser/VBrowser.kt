@@ -1,6 +1,5 @@
 package programs.standart.vBrowser
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -11,11 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import os.desktop.SubWindowData
@@ -199,7 +195,6 @@ private open class VBImage(argsAsString: String) : VBView(argsAsString) {
 
 @Composable
 fun VBrowser(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
 

@@ -70,7 +70,6 @@ private data class Message(
 
 @Composable
 fun GoChat(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
     val chatOpened = remember {

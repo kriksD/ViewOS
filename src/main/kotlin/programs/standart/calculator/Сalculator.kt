@@ -16,7 +16,6 @@ import os.desktop.SubWindowData
 
 @Composable
 fun Calculator(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
     Column(

@@ -10,13 +10,13 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import os.manager.Notification
+import os.manager.ProgramsManager
 import os.properties.OsProperties
 import java.io.File
 
 @Composable
 fun WindowArea(
     modifier: Modifier,
-    programsThatOpen: MutableList<SubWindowData>,
     programsReload: MutableState<Boolean>,
 ) {
 
@@ -35,7 +35,7 @@ fun WindowArea(
         )
 
         if (programsReload.value) {
-            for (data in programsThatOpen) {
+            ProgramsManager.getAll().forEach { data ->
                 SubWindow(
                     x = data.x,
                     y = data.y,
@@ -43,11 +43,9 @@ fun WindowArea(
                     height = data.height,
                     title = data.title,
                     icon = painterResource(data.icon),
-                    programsThatOpen = programsThatOpen,
                     data = data,
-                    programsReload = programsReload,
                 ) {
-                    data.content(data, programsThatOpen, programsReload)
+                    data.content(data)
                 }
             }
         } else {

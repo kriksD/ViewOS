@@ -3,6 +3,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
@@ -16,6 +17,7 @@ import os.manager.ProgramsCreator
 import os.manager.ProgramsManager
 import os.properties.BottomBarPosition
 import os.properties.OsProperties
+import kotlin.concurrent.timer
 
 fun main() = application {
 
@@ -53,24 +55,24 @@ fun WindowManageArea(
             snackbarHostState.value.showSnackbar(it.toString())
         }
     }
-
-    val programsThatOpen = remember { mutableListOf(ProgramsCreator.getInstance("Welcome")) }
-    val programsReload = remember { mutableStateOf(true) }
-
     NotificationManager.add(
         message = "Welcome to ViewOS ${ViewOS.currentVersion}!",
         onClick = {
-            //ProgramsManager.open(ProgramsCreator.getInstance("Welcome"))
-            programsThatOpen.add(ProgramsCreator.getInstance("Welcome"))
-            programsReload.value = false
+            ProgramsManager.open(ProgramsCreator.getInstance("Welcome"))
         }
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    val programsReload = remember { mutableStateOf(true) }
+    ProgramsManager.addOnOpen {
+        programsReload.value = false
+    }
+    ProgramsManager.addOnClose {
+        programsReload.value = false
+    }
 
+    Box(modifier = Modifier.fillMaxSize()) {
         WindowArea(
             modifier = Modifier.align(Alignment.TopCenter),
-            programsThatOpen = programsThatOpen,
             programsReload = programsReload,
         )
 
@@ -82,9 +84,7 @@ fun WindowManageArea(
                 }
             ),
             isWindowAskingToClose = isAskingToClose,
-            programsThatOpen = programsThatOpen,
             programsReload = programsReload,
-            snackbarHostState = snackbarHostState.value,
         )
     }
     SnackbarHost(snackbarHostState.value)

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import os.manager.NotificationManager
 import os.manager.ProgramsCreator
+import os.manager.ProgramsManager
 import os.properties.OsProperties
 import java.awt.im.InputContext
 import java.io.File
@@ -35,16 +36,19 @@ class BottomBar {
 fun BottomBar(
     modifier: Modifier = Modifier,
     isWindowAskingToClose: MutableState<Boolean>,
-    programsThatOpen: MutableList<SubWindowData>,
     programsReload: MutableState<Boolean>,
-    snackbarHostState: SnackbarHostState,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(BottomBar.height)
             .background(
-                brush = Brush.horizontalGradient(listOf(OsProperties.osStyle.bottomBarColor, OsProperties.osStyle.bottomBarColor)),
+                brush = Brush.horizontalGradient(
+                    listOf(
+                        OsProperties.osStyle.bottomBarColor,
+                        OsProperties.osStyle.bottomBarColor
+                    )
+                ),
                 alpha = OsProperties.osStyle.bottomBarTransparency
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -53,11 +57,8 @@ fun BottomBar(
         if (OsProperties.bottomBarSettings.iconsInCenter) {
             MenuButton(
                 isWindowAskingToClose = isWindowAskingToClose,
-                programsThatOpen = programsThatOpen,
-                programsReload = programsReload,
             )
             IconBar(
-                programsThatOpen = programsThatOpen,
                 programsReload = programsReload,
             )
         } else if (!OsProperties.bottomBarSettings.iconsInCenter) {
@@ -67,38 +68,30 @@ fun BottomBar(
             ) {
                 MenuButton(
                     isWindowAskingToClose = isWindowAskingToClose,
-                    programsThatOpen = programsThatOpen,
-                    programsReload = programsReload,
                 )
                 IconBar(
-                    programsThatOpen = programsThatOpen,
                     programsReload = programsReload,
                 )
             }
         }
 
-        InfoViewer(
-            snackbarHostState = snackbarHostState,
-        )
+        InfoViewer()
     }
 }
 
 @Composable
 private fun IconBar(
-    programsThatOpen: MutableList<SubWindowData>,
     programsReload: MutableState<Boolean>,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         if (programsReload.value) {
-            for (program in programsThatOpen) {
+            ProgramsManager.getAll().forEach { program ->
                 ProgramIcon(
                     icon = painterResource(program.icon),
                     title = program.title,
-                    programsThatOpen = programsThatOpen,
                     data = program,
-                    programsReload = programsReload
                 )
             }
         } else {
@@ -110,8 +103,6 @@ private fun IconBar(
 @Composable
 private fun MenuButton(
     isWindowAskingToClose: MutableState<Boolean>,
-    programsThatOpen: MutableList<SubWindowData>,
-    programsReload: MutableState<Boolean>,
 ) {
     val expanded = remember { mutableStateOf(false) }
 
@@ -126,8 +117,6 @@ private fun MenuButton(
         DropdownMainMenu(
             expanded = expanded,
             isWindowAskingToClose = isWindowAskingToClose,
-            programsThatOpen = programsThatOpen,
-            programsReload = programsReload,
         )
 
         Image(
@@ -141,8 +130,6 @@ private fun MenuButton(
 private fun DropdownMainMenu(
     expanded: MutableState<Boolean>,
     isWindowAskingToClose: MutableState<Boolean>,
-    programsThatOpen: MutableList<SubWindowData>,
-    programsReload: MutableState<Boolean>,
 ) {
     DropdownMenu(
         expanded = expanded.value,
@@ -160,10 +147,9 @@ private fun DropdownMainMenu(
                     title = file.nameWithoutExtension,
                     icon = painterResource(ProgramsCreator.getInstance(file.nameWithoutExtension).icon)
                 ) {
-                    programsThatOpen.add(
+                    ProgramsManager.open(
                         ProgramsCreator.getInstance(file.nameWithoutExtension)
                     )
-                    programsReload.value = false
                 }
             }
         }
@@ -171,8 +157,7 @@ private fun DropdownMainMenu(
         Divider()
 
         CustomDropdownItem(title = "settings") {
-            programsThatOpen.add(ProgramsCreator.getInstance("Settings"))
-            programsReload.value = false
+            ProgramsManager.open(ProgramsCreator.getInstance("Settings"))
         }
 
         CustomDropdownItem(title = "shut down") {
@@ -182,9 +167,7 @@ private fun DropdownMainMenu(
 }
 
 @Composable
-private fun InfoViewer(
-    snackbarHostState: SnackbarHostState,
-) {
+private fun InfoViewer() {
     val timeStr = remember { mutableStateOf(OsProperties.currentTimeAsString()) }
 
     val timerExists = remember { mutableStateOf(false) }
@@ -318,9 +301,7 @@ private fun CustomDropdownItemWithClose(title: String = "item", onClick: () -> U
 private fun ProgramIcon(
     icon: Painter = painterResource("9.png"),
     title: String = "program",
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
-    programsReload: MutableState<Boolean>,
 ) {
     val expanded = remember { mutableStateOf(false) }
 
@@ -328,9 +309,8 @@ private fun ProgramIcon(
         onClick = {
             expanded.value = true
 
-            programsThatOpen.remove(data)
-            programsThatOpen.add(data)
-            programsReload.value = false
+            ProgramsManager.close(data)
+            ProgramsManager.open(data)
         },
         modifier = Modifier
             .padding(0.dp)
@@ -379,7 +359,8 @@ private fun DropdownProgramIconMenu(
 private fun CustomDropdownItemWithIcon(
     title: String = "item",
     icon: Painter? = null,
-    onClick: () -> Unit) {
+    onClick: () -> Unit
+) {
     DropdownMenuItem(
         onClick = {
             onClick()
@@ -388,7 +369,7 @@ private fun CustomDropdownItemWithIcon(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ){
+        ) {
             icon?.let {
                 Image(
                     painter = it,

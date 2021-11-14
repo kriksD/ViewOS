@@ -3,7 +3,7 @@ package os.manager
 import os.desktop.SubWindowData
 
 object ProgramsManager {
-    private val programsThatOpen = mutableListOf<SubWindowData>()
+    private val programsThatOpen = mutableListOf(ProgramsCreator.getInstance("Welcome"))
     private val onOpen = mutableListOf<(data: SubWindowData) -> Unit>()
     private val onClose = mutableListOf<(data: SubWindowData) -> Unit>()
 
@@ -57,11 +57,11 @@ object ProgramsManager {
         return programsThatOpen.toList()
     }
 
-    fun addOnSent(onOpen: (data: SubWindowData) -> Unit) {
+    fun addOnOpen(onOpen: (data: SubWindowData) -> Unit) {
         this.onOpen.add(onOpen)
     }
 
-    fun removeOnSent(onOpen: (data: SubWindowData) -> Unit) {
+    fun removeOnOpen(onOpen: (data: SubWindowData) -> Unit) {
         this.onOpen.remove(onOpen)
     }
 

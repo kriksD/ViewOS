@@ -24,7 +24,6 @@ import java.io.File
 
 @Composable
 fun Settings(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
     val iconsInCenter = remember { mutableStateOf(OsProperties.bottomBarSettings.iconsInCenter) }

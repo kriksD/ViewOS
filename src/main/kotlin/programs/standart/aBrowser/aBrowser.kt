@@ -18,7 +18,6 @@ import java.io.File
 
 @Composable
 fun ABrowser(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
 

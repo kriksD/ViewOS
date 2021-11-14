@@ -28,7 +28,6 @@ import kotlin.math.abs
 
 @Composable
 fun GoMaps(
-    programsThatOpen: MutableList<SubWindowData>,
     data: SubWindowData,
 ) {
     val lastUpdate = remember { mutableStateOf(0L) }

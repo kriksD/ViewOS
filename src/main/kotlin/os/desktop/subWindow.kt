@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import os.manager.Notification
+import os.manager.ProgramsManager
 import java.awt.Dimension
 import java.awt.Toolkit
 import kotlin.math.roundToInt
@@ -36,10 +37,8 @@ data class SubWindowData(
     var width: Dp = 500.dp,
     var height: Dp = 500.dp,
     val content: @Composable (
-        data: SubWindowData,
-        programsThatOpen: MutableList<SubWindowData>,
-        programsReload: MutableState<Boolean>,
-    ) -> Unit = { data, pio, reload -> },
+        data: SubWindowData
+    ) -> Unit = { data -> },
     val args: MutableMap<String, Any> = mutableMapOf(),
     val id: Int = 0
 ) {
@@ -66,9 +65,7 @@ fun SubWindow(
     y: Float = 10f,
     width: Dp = 500.dp,
     height: Dp = 500.dp,
-    programsThatOpen: MutableList<SubWindowData>?,
     data: SubWindowData?,
-    programsReload: MutableState<Boolean>?,
     content: @Composable () -> Unit
 ) {
     val offsetX = remember { mutableStateOf(x) }
@@ -106,9 +103,7 @@ fun SubWindow(
             offsetY = offsetY,
             windowHeight = windowHeight,
             windowWidth = windowWidth,
-            programsThatOpen = programsThatOpen,
             data = data,
-            programsReload = programsReload,
             saveData = saveData,
         )
         ContentArea(
@@ -131,9 +126,7 @@ private fun ControlBar(
     offsetY: MutableState<Float>,
     windowWidth: MutableState<Dp>,
     windowHeight: MutableState<Dp>,
-    programsThatOpen: MutableList<SubWindowData>?,
     data: SubWindowData?,
-    programsReload: MutableState<Boolean>?,
     saveData: MutableState<Boolean>,
 ) {
     Row(
@@ -143,9 +136,8 @@ private fun ControlBar(
             .height(SubWindow.controlBarHeight)
             .border(1.dp, Color.Black)
             .clickable {
-                programsThatOpen?.remove(data)
-                data?.let { programsThatOpen?.add(it) }
-                programsReload?.value = false
+                data?.let { ProgramsManager.close(it) }
+                data?.let { ProgramsManager.open(it) }
 
             }.pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
@@ -171,9 +163,7 @@ private fun ControlBar(
             offsetY = offsetY,
             windowWidth = windowWidth,
             windowHeight = windowHeight,
-            programsThatOpen = programsThatOpen,
             data = data,
-            programsReload = programsReload,
             saveData = saveData,
         )
     }
@@ -202,9 +192,7 @@ private fun ControlBarButtons(
     offsetY: MutableState<Float>,
     windowWidth: MutableState<Dp>,
     windowHeight: MutableState<Dp>,
-    programsThatOpen: MutableList<SubWindowData>?,
     data: SubWindowData?,
-    programsReload: MutableState<Boolean>?,
     saveData: MutableState<Boolean>,
 ) {
     Row {
@@ -238,8 +226,7 @@ private fun ControlBarButtons(
 
         Button(
             onClick = {
-                programsThatOpen?.remove(data)
-                programsReload?.value = false
+                data?.let { ProgramsManager.close(it) }
             },
             shape = RoundedCornerShape(0.dp)
         ) {
