@@ -20,6 +20,7 @@ dependencies {
     implementation(compose.desktop.windows_x64)
     implementation("com.notkamui.libs:keval:0.7.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    implementation("com.ToxicBakery.library.noise:generator:1.0.10")
 }
 
 tasks.withType<KotlinCompile>() {

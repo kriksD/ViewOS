@@ -9,11 +9,25 @@ class OsTime(withTimer: Boolean = true) {
 
     private var currentTime = Time(timeFromFile())
     private var currentDate = Date(dateFromFile())
+    private val onTimeUp = mutableMapOf<String, (time: Time, date: Date) -> Unit>()
+
+    fun addOnTimeUp(name: String, onTimeUp: (time: Time, date: Date) -> Unit) {
+        this.onTimeUp[name] = onTimeUp
+        println("added")
+    }
+
+    fun removeOnTimeUp(name: String) {
+        onTimeUp.remove(name)
+    }
 
     private val timer by lazy {
         if (withTimer) {
             timer("timeAndDate", true, 833, 833) {
                 currentTime.add(1)
+
+                onTimeUp.forEach {
+                    it.value(currentTime, currentDate)
+                }
 
                 if (currentTime == Time(0, 0)){
                     currentDate.day += 1

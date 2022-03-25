@@ -1,9 +1,10 @@
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
@@ -17,7 +18,8 @@ import os.manager.ProgramsCreator
 import os.manager.ProgramsManager
 import os.properties.BottomBarPosition
 import os.properties.OsProperties
-import kotlin.concurrent.timer
+import java.awt.im.InputContext
+import kotlin.random.Random
 
 fun main() = application {
 
@@ -88,4 +90,90 @@ fun WindowManageArea(
         )
     }
     SnackbarHost(snackbarHostState.value)
+
+    if (Random(OsProperties.currentTime().toLong() + OsProperties.currentDate().day).nextInt(100) == 0)
+        bsod(isAskingToClose)
+}
+
+@Composable
+private fun bsod(
+    isAskingToClose: MutableState<Boolean>,
+) {
+    Column(
+        modifier = Modifier
+            .background(Color.Blue)
+            .fillMaxSize()
+    ) {
+        Text(
+            text = "Critical error!",
+            color = Color.LightGray
+        )
+        Text(
+            text = "Os version: ${ViewOS.currentVersion}",
+            color = Color.LightGray
+        )
+        Text(
+            text = "Programs opened:",
+            color = Color.LightGray
+        )
+
+        ProgramsManager.getAll().forEach {
+            Text(
+                text = "${it.title} ${it.args} ${it.icon} ${it.id} ${it.content}",
+                color = Color.LightGray
+            )
+        }
+
+        Text(
+            text = "Language: ${InputContext.getInstance().locale}",
+            color = Color.LightGray
+        )
+        Text(
+            text = "OsProperties:",
+            color = Color.LightGray
+        )
+        Text(
+            text = OsProperties.currentTimeAsString(),
+            color = Color.LightGray
+        )
+        Text(
+            text = OsProperties.osStyle.backgroundPath,
+            color = Color.LightGray
+        )
+        Text(
+            text = OsProperties.osStyle.bottomBarColor.toString(),
+            color = Color.LightGray
+        )
+        Text(
+            text = OsProperties.osStyle.bottomBarTransparency.toString(),
+            color = Color.LightGray
+        )
+        Text(
+            text = OsProperties.bottomBarSettings.bottomBarPosition.name,
+            color = Color.LightGray
+        )
+        Text(
+            text = OsProperties.bottomBarSettings.iconsInCenter.toString(),
+            color = Color.LightGray
+        )
+        Text(
+            text = "Notifications:",
+            color = Color.LightGray
+        )
+
+        NotificationManager.getAll().forEach {
+            Text(
+                text = "${it.date} ${it.time} ${it.message} ${it.onClick}",
+                color = Color.LightGray
+            )
+        }
+
+        Button(
+            onClick = {
+                isAskingToClose.value = true
+            }
+        ) {
+            Text("Shut down")
+        }
+    }
 }

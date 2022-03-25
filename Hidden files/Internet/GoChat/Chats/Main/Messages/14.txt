@@ -1,0 +1,5 @@
+Message:"Version 1.0.3 released! Please update app in AppMarket. Bug with messages position has fixed."
+By:"Ivan_admin"
+Time:119
+Date:424
+e

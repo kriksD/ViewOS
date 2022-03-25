@@ -10,11 +10,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import os.desktop.SubWindowData
+import os.manager.InternetManager
+import viewOsAppends.emptyImageBitmap
+import viewOsAppends.getImageBitmap
 import java.io.File
 
 private interface VBBaseView {
@@ -185,7 +187,7 @@ private open class VBImage(argsAsString: String) : VBView(argsAsString) {
         val args = argsAsString.split("|")
 
         args.forEach { arg ->
-            if (arg.contains(Regex("src=ViewOS/.*"))) {
+            if (arg.contains(Regex("src=(ViewOS|Hidden files/Internet)/.*"))) {
 
                 src = arg.substringAfter("src=")
             }
@@ -206,7 +208,7 @@ fun VBrowser(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val pageFile = File("ViewOS/ProgramData/VBrowser/Sites/${url.value}.vgml")
+        val pageFile = File("${InternetManager.internetFolderPath()}/VBrowser/Sites/${url.value}.vgml")
 
         if (pageFile.exists()) {
             pageContent.value = pageFile.readText()
@@ -315,9 +317,7 @@ private fun ContentArea(
                                 }
                             }
                             is VBImage -> {
-                                val image =
-                                    org.jetbrains.skia.Image.makeFromEncoded(File(view.src).readBytes())
-                                        .toComposeImageBitmap()
+                                val image = getImageBitmap(File(view.src)) ?: emptyImageBitmap
 
                                 Image(
                                     bitmap = image,

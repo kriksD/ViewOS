@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import os.desktop.SubWindowData
 import os.manager.ProgramsCreator
 import os.manager.ProgramsManager
-import viewOsUis.Table
-import viewOsUis.TableType
+import viewOsAppends.Table
+import viewOsAppends.TableType
 import java.io.File
 
 @Composable
@@ -67,6 +67,14 @@ fun Explorer(
                         textEditor.args["path"] = text.value
                         ProgramsManager.open(textEditor)
 
+                    } else if (checkForVex(text.value)) {
+                        val program = ProgramsCreator.getInstance(
+                            text.value
+                                .substringAfterLast("/")
+                                .substringBeforeLast(".")
+                        )
+                        ProgramsManager.open(program)
+
                     } else if (checkForPath(text.value)) {
                         path.value = text.value
                     } else {
@@ -80,7 +88,6 @@ fun Explorer(
             tableIsOpen.value = true
         }
     }
-
 }
 
 @Composable
@@ -180,6 +187,10 @@ private fun checkForPath(path: String): Boolean {
 
 private fun checkForTxt(path: String): Boolean {
     return Regex("ViewOS/.*\\.(txt|vgml)").containsMatchIn(path)
+}
+
+private fun checkForVex(path: String): Boolean {
+    return Regex("ViewOS/.*\\.vex").containsMatchIn(path)
 }
 
 private fun checkForPng(path: String): Boolean {

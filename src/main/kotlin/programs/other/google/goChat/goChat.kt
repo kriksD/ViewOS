@@ -11,62 +11,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import org.jetbrains.skia.Bitmap
 import os.desktop.SubWindowData
+import os.manager.*
 import os.properties.OsProperties
 import os.time.Date
 import os.time.Time
-import viewOsUis.TextCheckbox
+import viewOsAppends.UIs.TextCheckbox
+import java.awt.Toolkit
+import java.awt.datatransfer.Clipboard
 import java.io.File
-import androidx.compose.ui.unit.dp as dp
 
-private data class Message(
-    val message: String,
-    val nickname: String,
-    val time: Time,
-    val date: Date
-) {
-    companion object {
-        fun getInstanceOfMessageProperties(messageProperties: String): Message {
-            val newMessageProp = messageProperties.replace("\r", "")
-            val message = newMessageProp.substring(
-                newMessageProp.indexOf("Message:"),
-                newMessageProp.indexOf("\n")
-            ).removePrefix("Message:")
-            val nickname = newMessageProp.substring(
-                newMessageProp.indexOf("By:"),
-                newMessageProp.indexOf("\nTime:")
-            ).removePrefix("By:")
-            val time = Time(
-                newMessageProp.substring(
-                    newMessageProp.indexOf("Time:"),
-                    newMessageProp.indexOf("\nDate:")
-                ).removePrefix("Time:").toLong()
-            )
-            val date = Date(
-                newMessageProp.substring(
-                    newMessageProp.indexOf("Date:"),
-                    newMessageProp.indexOf("\ne")
-                ).removePrefix("Date:").toLong()
-            )
-
-            return Message(
-                message,
-                nickname,
-                time,
-                date
-            )
-        }
-    }
-}
 
 @Composable
 fun GoChat(
@@ -77,10 +43,10 @@ fun GoChat(
             if (data.args["chat"] != null) data.args["chat"] as String else ""
         )
     }
-    val nicknameFile = File("ViewOS/ProgramData/GoChat/nickname.txt")
-    val nickname = remember { mutableStateOf(if (nicknameFile.exists()) nicknameFile.readText() else "unknown") }
-    val reload = remember { mutableStateOf(true) }
+    val nickname = remember { mutableStateOf(getNickname()) }
+    val color = remember { mutableStateOf(getColor()) }
 
+    val reload = remember { mutableStateOf(true) }
     if (reload.value) {
         Row(
             modifier = Modifier
@@ -90,6 +56,7 @@ fun GoChat(
         ) {
             ChatsList(
                 nickname = nickname,
+                color = color,
                 chatOpened = chatOpened,
                 data = data
             )
@@ -104,7 +71,9 @@ fun GoChat(
                     chatOpened = chatOpened,
                     data = data,
                     modifier = Modifier
-                        .weight(9F)
+                        .weight(9F),
+                    nickname = nickname.value,
+                    nicknameColor = color.value
                 )
 
                 MessageSender(
@@ -120,9 +89,19 @@ fun GoChat(
     }
 }
 
+fun getColor(): Color {
+    return Color.Blue
+}
+
+private fun getNickname(): String {
+    val nicknameFile = File("ViewOS/ProgramData/GoChat/nickname.txt")
+    return if (nicknameFile.exists()) nicknameFile.readText() else "unknown"
+}
+
 @Composable
 private fun ChatsList(
     nickname: MutableState<String>,
+    color: MutableState<Color>,
     chatOpened: MutableState<String>,
     data: SubWindowData,
 ) {
@@ -144,14 +123,56 @@ private fun ChatsList(
             text = "Your nickname:",
             color = Color.LightGray
         )
-        OutlinedTextField(
-            value = nickname.value,
-            onValueChange = {
-                nickname.value = it
-                File("ViewOS/ProgramData/GoChat/nickname.txt").writeText(nickname.value)
-            },
-            textStyle = TextStyle(color = Color.LightGray),
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            OutlinedTextField(
+                value = nickname.value,
+                onValueChange = {
+                    nickname.value = it
+                    File("ViewOS/ProgramData/GoChat/nickname.txt").writeText(nickname.value)
+                },
+                textStyle = TextStyle(color = Color.LightGray),
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val expandedCPDropdownMenu = remember { mutableStateOf(false) }
+                val colors = listOf(
+                    Color.Black, Color.DarkGray, Color.Gray,
+                    Color.LightGray, Color.White, Color.Blue,
+                    Color.Red, Color.Cyan, Color.Magenta,
+                    Color.Green, Color.Yellow
+                )
+                Button(
+                    onClick = {
+                        expandedCPDropdownMenu.value = true
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = color.value)
+                ) {
+                    DropdownMenu(
+                        expanded = expandedCPDropdownMenu.value,
+                        onDismissRequest = {
+                            expandedCPDropdownMenu.value = false
+                        }
+                    ) {
+                        colors.forEach {
+                            DropdownMenuItem(
+                                onClick = {
+                                    color.value = it
+                                },
+                                modifier = Modifier
+                                    .background(it)
+                            ) {
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         TextCheckbox(
             text = "Favorite only",
@@ -172,56 +193,64 @@ private fun ChatsList(
                 .verticalScroll(chatListScroll),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val chatsList = File("ViewOS/ProgramData/GoChat/Chats").listFiles()
+            val chats = getChats()
 
-            chatsList?.forEach {
-                val propertiesFile = File("${it.path}/properties.txt")
-                val properties = if (propertiesFile.exists()) {
-                    propertiesFile.readText()
-                } else "favorite:false"
-                val isFavorite = remember { mutableStateOf(properties.contains("favorite:true")) }
-
-                val chatFolder = File("${it.path}/Messages")
-                val messageFiles = if (chatFolder.exists()) {
-                    chatFolder.listFiles()?.sortedBy { file ->
-                        file.nameWithoutExtension.toInt()
-                    }
-                } else null
-
-                val lastMessage = if (messageFiles != null) {
-                    val mess = messageFiles.last().readText()
-                    mess.substring(
-                        mess.indexOf("Message:"),
-                        mess.indexOf("\n")
-                    ).removePrefix("Message:")
-                } else "Message isn`t exist :("
-
-                if (!favoriteCheck.value || favoriteCheck.value && isFavorite.value)
+            chats.forEach { chat ->
+                if (!favoriteCheck.value || favoriteCheck.value && chat.isFavorite())
                     ChatListItem(
-                        title = it.nameWithoutExtension,
-                        lastMessage = lastMessage,
-                        checkFavorite = isFavorite.value,
+                        title = chat.name,
+                        lastMessage = chat.lastMessage,
+                        checkFavorite = chat.isFavorite(),
                         modifier = Modifier
                             .fillMaxWidth(),
                         onCheckFavorite = { value ->
-                            isFavorite.value = value
-                            if (propertiesFile.exists()) {
-                                propertiesFile.writeText(
-                                    properties.replace(
-                                        Regex("favorite:(true|false)"), "favorite:${isFavorite.value}"
-                                    )
-                                )
-                            }
-                            data.args["favorite"] = favoriteCheck.value
+                            chat.setIsFavorite(value)
                         },
                         onClick = {
-                            chatOpened.value = it.nameWithoutExtension
+                            chatOpened.value = chat.name
                             data.args["chat"] = chatOpened.value
                         }
                     )
             }
         }
     }
+}
+
+private fun getChats(): List<Chat> {
+    val files = File("${InternetManager.internetFolderPath()}/GoChat/Chats").listFiles()
+    val chats = mutableListOf<Chat>()
+
+    files?.forEach { file ->
+        val propertiesFilePath = "ViewOS/ProgramData/GoChat/Chats/${file.nameWithoutExtension}/properties.txt"
+        val propertiesFile = File(propertiesFilePath)
+        val properties = if (propertiesFile.exists()) {
+            propertiesFile.readText()
+        } else {
+            File("ViewOS/ProgramData/GoChat/Chats/${file.nameWithoutExtension}").mkdir()
+            createPropertiesFile(propertiesFilePath)
+            "favorite:false"
+        }
+        val favoriteFound = Regex("favorite:(false|true)").find(properties)
+        val favorite = favoriteFound?.value?.substringAfter(":").toBoolean()
+
+        val lastMessage =
+            getMessages("${InternetManager.internetFolderPath()}/GoChat/Chats/${file.nameWithoutExtension}/Messages").last().message
+
+        chats.add(
+            Chat(
+                name = file.nameWithoutExtension,
+                lastMessage = lastMessage,
+                isFavorite = favorite
+            )
+        )
+    }
+
+    return chats
+}
+
+private fun createPropertiesFile(path: String, favorite: Boolean = false) {
+    val propertiesFile = File(path)
+    propertiesFile.writeText("favorite:$favorite")
 }
 
 @Composable
@@ -292,11 +321,16 @@ private fun Chat(
     chatOpened: MutableState<String>,
     data: SubWindowData,
     modifier: Modifier = Modifier,
+    nickname: String,
+    nicknameColor: Color
 ) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState(
         if (data.args["chatScroll"] != null) data.args["chatScroll"] as Int else 0
     )
+    val clipboard = LocalClipboardManager.current
+
+    val messages = getMessages("${InternetManager.internetFolderPath()}/GoChat/Chats/${chatOpened.value}/Messages")
 
     LazyColumn(
         modifier = modifier
@@ -306,41 +340,139 @@ private fun Chat(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (chatOpened.value.isNotEmpty()) {
-            val chatFolder = File("ViewOS/ProgramData/GoChat/Chats/${chatOpened.value}/Messages")
+            items(messages) { message ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = if (nickname == message.nickname) Arrangement.End else Arrangement.Start,
+                ) {
+                    Column {
+                        ChatMessage(
+                            message = message.message,
+                            nickname = message.nickname,
+                            nicknameColor = if (nickname == message.nickname) nicknameColor else Color.Blue,
+                            timeWhenSent = message.time,
+                            dateWhenSent = message.date,
+                            position = if (nickname == message.nickname) MessagePosition.Right else MessagePosition.Left,
+                            onClick = {
+                                NotificationManager.add("You save the message into clipboard: ${message.message}")
+                                clipboard.setText(AnnotatedString(message.message))
+                            }
+                        )
 
-            val messageFiles = if (chatFolder.exists()) {
-                chatFolder.listFiles()?.sortedBy {
-                    it.nameWithoutExtension.toInt()
-                }
-            } else null
-
-            if (messageFiles != null) {
-                items(messageFiles) { file ->
-                    val messageProperties = file.readText()
-                    val message = Message.getInstanceOfMessageProperties(messageProperties)
-
-                    ChatMessage(
-                        message = message.message,
-                        nickname = message.nickname,
-                        timeWhenSent = message.time,
-                        dateWhenSent = message.date
-                    )
-                }
-            } else {
-                item {
-                    Text(
-                        text = "Sorry! This chat isn't exist :(",
-                        color = Color.Red
-                    )
+                        val url = Regex("vgs-[a-zA-Z0-9-]*").find(message.message)
+                        if (url != null) {
+                            ChatMessage(
+                                message = url.value,
+                                nickname = "BOT",
+                                nicknameColor = if (nickname == message.nickname) nicknameColor else Color.Blue,
+                                timeWhenSent = message.time,
+                                dateWhenSent = message.date,
+                                position = if (nickname == message.nickname) MessagePosition.Right else MessagePosition.Left,
+                                onClick = {
+                                    val vBrowser = ProgramsCreator.getInstance("VBrowser")
+                                    vBrowser.args["url"] = url.value
+                                    ProgramsManager.open(vBrowser)
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
 
-        coroutineScope.launch {
-            listState.scrollToItem(listState.layoutInfo.totalItemsCount)
-            data.args["chatScroll"] = listState.firstVisibleItemIndex
+    coroutineScope.launch {
+        listState.scrollToItem(listState.layoutInfo.totalItemsCount)
+        data.args["chatScroll"] = listState.firstVisibleItemIndex
+    }
+}
+
+@Composable
+private fun ChatMessage(
+    message: String,
+    nickname: String,
+    nicknameColor: Color,
+    timeWhenSent: Time,
+    dateWhenSent: Date,
+    position: MessagePosition = MessagePosition.Left,
+    onClick: (() -> Unit)? = null,
+) {
+    Column(
+        modifier = Modifier
+            .border(
+                width = 1.dp,
+                color = Color.Black,
+                shape = RoundedCornerShape(4.dp)
+            )
+            .padding(8.dp)
+            .clickable {
+                if (onClick != null) {
+                    onClick()
+                }
+            },
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = if (position == MessagePosition.Left) Alignment.Start else Alignment.End
+    ) {
+        Row(
+            modifier = Modifier,
+            horizontalArrangement = Arrangement.spacedBy(
+                8.dp,
+                if (position == MessagePosition.Left) Alignment.Start else Alignment.End
+            ),
+        ) {
+            if (position == MessagePosition.Left) {
+                Text(
+                    text = nickname,
+                    color = nicknameColor,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = "$dateWhenSent $timeWhenSent",
+                    color = Color.LightGray,
+                    fontWeight = FontWeight.ExtraLight
+                )
+            } else {
+                Text(
+                    text = "$dateWhenSent $timeWhenSent",
+                    color = Color.LightGray,
+                    fontWeight = FontWeight.ExtraLight
+                )
+                Text(
+                    text = nickname,
+                    color = nicknameColor,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
+        }
+
+        Text(
+            text = message,
+            color = Color.LightGray,
+            fontSize = 18.sp,
+            textAlign = if (position == MessagePosition.Left) TextAlign.Left else TextAlign.Right
+        )
+    }
+}
+
+private fun getMessages(path: String): List<Message> {
+    val files = File(path).listFiles()
+    val sortedFiles = files?.sortedBy {
+        try {
+            it.nameWithoutExtension.toInt()
+        } catch (e: Exception) {
+            println(e.message)
+            null
         }
     }
+
+    val messages = mutableListOf<Message>()
+    sortedFiles?.forEach { file ->
+        val messageProperties = if (file.exists()) file.readText() else ""
+        messages.add(Message.getInstanceOfProperties(messageProperties))
+    }
+
+    return messages
 }
 
 @Composable
@@ -373,81 +505,55 @@ private fun MessageSender(
                 data.args["enter"] = enterText.value
             },
             textStyle = TextStyle(color = Color.LightGray),
-            modifier = Modifier.width(800.dp)
+            modifier = Modifier
+                .weight(9F)
         )
 
         Button(
             onClick = {
-                val chatFolder = File("ViewOS/ProgramData/GoChat/Chats/${chatOpened.value}/Messages")
+                sendMessage(
+                    chatOpened = chatOpened.value,
+                    message = enterText.value,
+                    nickname = nickname.value
+                )
 
-                val messageFiles = if (chatFolder.exists()) {
-                    chatFolder.listFiles()?.sortedBy {
-                        it.nameWithoutExtension.toInt()
-                    }
-                } else null
-
-                if (messageFiles != null) {
-                    val newMessageFile =
-                        File("${chatFolder.path}/${messageFiles.last().nameWithoutExtension.toInt() + 1}.txt")
-
-                    newMessageFile.writeText(
-                        "Message:${enterText.value}\n" +
-                                "By:${nickname.value}\n" +
-                                "Time:${OsProperties.currentTime().toLong()}\n" +
-                                "Date:${OsProperties.currentDate().day}\n" +
-                                "e"
-                    )
-
-                    enterText.value = ""
-                    data.args["enter"] = enterText.value
-                    reload.value = false
-                }
+                enterText.value = ""
+                data.args["enter"] = enterText.value
+                reload.value = false
             },
+            modifier = Modifier
+                .weight(1F),
         ) {
             Text(
                 text = "send",
-                color = Color.LightGray
+                color = Color.LightGray,
             )
         }
     }
 }
 
-@Composable
-private fun ChatMessage(
+fun sendMessage(
+    chatOpened: String,
     message: String,
     nickname: String,
-    timeWhenSent: Time,
-    dateWhenSent: Date,
 ) {
-    Column(
-        modifier = Modifier
-            .border(
-                width = 1.dp,
-                color = Color.Black,
-                shape = RoundedCornerShape(4.dp)
-            )
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = nickname,
-                color = Color.Blue,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = "$dateWhenSent $timeWhenSent",
-                color = Color.LightGray,
-                fontWeight = FontWeight.ExtraLight
-            )
-        }
+    val chatFolder = File("${InternetManager.internetFolderPath()}/GoChat/Chats/$chatOpened/Messages")
 
-        Text(
-            text = message,
-            color = Color.LightGray,
-            fontSize = 18.sp
+    val messageFiles = if (chatFolder.exists()) {
+        chatFolder.listFiles()?.sortedBy {
+            it.nameWithoutExtension.toInt()
+        }
+    } else null
+
+    if (messageFiles != null) {
+        val newMessageFile = File("${chatFolder.path}/${messageFiles.last().nameWithoutExtension.toInt() + 1}.txt")
+
+        newMessageFile.writeText(
+            "Message:\"${message}\"\n" +
+                    "By:\"${nickname}\"\n" +
+                    "Time:${OsProperties.currentTime().toLong()}\n" +
+                    "Date:${OsProperties.currentDate().day}\n" +
+                    "e"
         )
     }
 }

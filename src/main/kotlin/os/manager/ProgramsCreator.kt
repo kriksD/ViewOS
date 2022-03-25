@@ -5,10 +5,13 @@ import os.desktop.SubWindow
 import os.desktop.SubWindowData
 import os.properties.OsProperties
 import programs.other.analyticsCenter.countryAnalytics.CountryAnalytics
+import programs.other.firstGame.dungeons2.Dungeons2
 import programs.other.google.goChat.GoChat
 import programs.other.google.goMaps.GoMaps
+import programs.other.mojang.minecraft.Minecraft
 import programs.standart.aBrowser.ABrowser
 import programs.standart.calculator.Calculator
+import programs.standart.console.Console
 import programs.standart.explorer.Explorer
 import programs.standart.imageViewer.ImageViewer
 import programs.standart.market.AppMarket
@@ -108,10 +111,29 @@ object ProgramsCreator {
             content = { data -> CountryAnalytics(data) },
             icon = "acIcon.png"
         ),
+        SubWindowData(
+            title = "Console",
+            content = { data -> Console(data) },
+            icon = "osIconSecond.png"
+        ),
+        SubWindowData(
+            title = "Minecraft",
+            content = { data -> Minecraft(data) },
+            icon = "osIconSecond.png"
+        ),
+        SubWindowData(
+            title = "Dungeons2",
+            content = { data -> Dungeons2(data) },
+            icon = "osIconSecond.png"
+        ),
     )
 
     fun getInstance(name: String): SubWindowData {
         return copySubWindowData(programsData.find { it.title == name } ?: getEmptyInstance())
+    }
+
+    fun getAllInstances(): List<SubWindowData> {
+        return programsData.toList()
     }
 
     fun getEmptyInstance(): SubWindowData {

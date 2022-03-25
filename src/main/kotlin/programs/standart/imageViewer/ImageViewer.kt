@@ -26,38 +26,12 @@ fun ImageViewer(
 
         Divider()
 
-        /*val zoom = remember { mutableStateOf(1F) }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Slider(
-                value = zoom.value,
-                onValueChange = {
-                    zoom.value = it
-                },
-                valueRange = 0F..3F,
-                steps = 40,
-                modifier = Modifier
-                    .width(300.dp)
-            )
-            Text(
-                text = String.format("%.1f", zoom.value).replace(",","."),
-                color = Color.DarkGray,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }*/
-
         val imgFile = File(data.args["path"].toString())
         val image = org.jetbrains.skia.Image.makeFromEncoded(imgFile.readBytes()).toComposeImageBitmap()
 
         Image(
             bitmap = image,
             contentDescription = "image",
-            modifier = Modifier,
-                //.width((image.width * zoom.value).dp)
-                //.height((image.height * zoom.value).dp),
             contentScale = ContentScale.Fit
         )
     }

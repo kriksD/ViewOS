@@ -19,7 +19,7 @@ import os.properties.BottomBarPosition
 import os.properties.OsProperties
 import os.time.Date
 import os.time.Time
-import viewOsUis.TextCheckbox
+import viewOsAppends.UIs.TextCheckbox
 import java.io.File
 
 @Composable

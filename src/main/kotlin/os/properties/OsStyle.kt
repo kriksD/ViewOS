@@ -20,10 +20,9 @@ class OsStyle {
         Regex("bottomBarTransparency:\\d\\.\\d").find(settingsText)?.value?.substringAfter(":")?.toFloat()
             ?: 0.5F
     private val colorFloats by lazy {
-        val floats =
-            Regex("bottomBarColor:\\d.?\\d{0,3},\\d.?\\d{0,3},\\d.?\\d{0,3}")
+        val floats = Regex("bottomBarColor:\\d\\.?\\d{0,3},\\d\\.?\\d{0,3},\\d\\.?\\d{0,3}")
                 .find(settingsText)?.value?.substringAfter(":") ?: "0.0,0.0,0.0"
-        val regexResult = Regex("\\d.?\\d{0,3}").findAll(floats)
+        val regexResult = Regex("\\d\\.?\\d{0,3}").findAll(floats)
 
         listOf(
             regexResult.elementAt(0).value.toFloat(),

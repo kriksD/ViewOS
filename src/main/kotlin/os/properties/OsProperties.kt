@@ -8,6 +8,14 @@ object OsProperties {
     val osStyle by lazy { OsStyle() }
     val bottomBarSettings by lazy { BottomBarSettings() }
 
+    fun addOnTimeUp(name: String, onTimeUp: (time: Time, date: Date) -> Unit) {
+        osTime.addOnTimeUp(name, onTimeUp)
+    }
+
+    fun removeOnTimeUp(name: String) {
+        osTime.removeOnTimeUp(name)
+    }
+
     fun currentTime(): Time {
         return osTime.currentTime()
     }

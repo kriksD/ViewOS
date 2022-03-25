@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,8 +22,8 @@ import os.desktop.SubWindowData
 import os.manager.Notification
 import os.manager.NotificationManager
 import os.time.Date
-import viewOsUis.emptyImageBitmap
-import viewOsUis.getImageBitmap
+import viewOsAppends.emptyImageBitmap
+import viewOsAppends.getImageBitmap
 import java.io.File
 
 private data class AppVersion(

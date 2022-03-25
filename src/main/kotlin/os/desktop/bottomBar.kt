@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import os.manager.InternetManager
 import os.manager.NotificationManager
 import os.manager.ProgramsCreator
 import os.manager.ProgramsManager
@@ -170,17 +171,47 @@ private fun DropdownMainMenu(
 private fun InfoViewer() {
     val timeStr = remember { mutableStateOf(OsProperties.currentTimeAsString()) }
 
-    val timerExists = remember { mutableStateOf(false) }
-    if (!timerExists.value) {
-        timer("gettingTimeAndDate", true, 833, 833) {
+    val onTimeUpAdded = remember { mutableStateOf(false) }
+    if (!onTimeUpAdded.value) {
+        OsProperties.addOnTimeUp("timeView") { time, date ->
             timeStr.value = OsProperties.currentTimeAsString()
-            timerExists.value = true
         }
+        onTimeUpAdded.value = true
     }
 
     Row(
-
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        val internetExpanded = remember { mutableStateOf(false) }
+
+        IconButton(
+            onClick = {
+                internetExpanded.value = true
+            }
+        ) {
+            if (InternetManager.check()) {
+                Icon(
+                    painter = painterResource("baseline_language_white_24.png"),
+                    contentDescription = "internet enable",
+                    tint = Color.LightGray,
+                    modifier = Modifier
+                        .size(24.dp),
+                )
+            } else {
+                Icon(
+                    painter = painterResource("baseline_block_white_24.png"),
+                    contentDescription = "internet disable",
+                    tint = Color.LightGray,
+                    modifier = Modifier
+                        .size(24.dp),
+                )
+            }
+
+            DropdownInternetMenu(
+                expanded = internetExpanded,
+            )
+        }
+
         Text(
             text = InputContext.getInstance().locale.toString(),
             color = Color.LightGray,
@@ -225,6 +256,36 @@ private fun InfoViewer() {
             }
             DropdownNotificationsMenu(
                 expanded = notificationsExpanded,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DropdownInternetMenu(
+    expanded: MutableState<Boolean>,
+) {
+    DropdownMenu(
+        expanded = expanded.value,
+        onDismissRequest = { expanded.value = false },
+        modifier = Modifier
+            .background(Color.DarkGray)
+    ) {
+        if (InternetManager.check()) {
+            CustomDropdownItem(
+                title = "disable",
+                onClick = {
+                    InternetManager.disable()
+                    expanded.value = false
+                }
+            )
+        } else {
+            CustomDropdownItem(
+                title = "enable",
+                onClick = {
+                    InternetManager.enable()
+                    expanded.value = false
+                }
             )
         }
     }

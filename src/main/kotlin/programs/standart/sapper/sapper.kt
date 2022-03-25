@@ -9,8 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import os.desktop.SubWindowData
-import viewOsUis.Table
-import viewOsUis.TableData
+import viewOsAppends.Table
+import viewOsAppends.TableData
 import java.util.*
 
 class SapperData {

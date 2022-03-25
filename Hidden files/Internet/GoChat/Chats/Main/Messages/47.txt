@@ -1,0 +1,5 @@
+Message:"Ivan, hi! Thanks! I have a bug i can't scroll up, i return in end of chat"
+By:"kriks"
+Time:93
+Date:426
+e
